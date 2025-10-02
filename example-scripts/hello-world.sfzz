@@ -1,0 +1,5 @@
+say "Hello World!"
+wait 1 second
+say "This is made in Sifzz!"
+say "It's a test program."
+say "You can view Sifzz on GitHub: https://github.com/StuffzEZ/Sifzz"
