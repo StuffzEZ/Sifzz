@@ -1,3 +1,5 @@
+> [!TIP]
+> You can add more functionality to your Sifzz projects using [modules](modules)!
 # Sifzz Programming Language Documentation
 
 A beginner-friendly scripting language with natural syntax
@@ -22,7 +24,7 @@ A beginner-friendly scripting language with natural syntax
 14. [Control Flow](#control-flow)
 15. [Complete Examples](#complete-examples)
 
-[NEXT PAGE | Module Development Guide](mdg.md)
+[NEXT PAGE - Module Development Guide](mdg)
 
 ---
 
