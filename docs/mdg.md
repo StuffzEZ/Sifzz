@@ -1,6 +1,6 @@
 # Sifzz Module Development Guide
 
-**Version 3.0** | Extending Sifzz with Python Modules
+Extending Sifzz with Python Modules
 
 ---
 
