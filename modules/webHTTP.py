@@ -1,5 +1,5 @@
 """
-This is an official Sifzz module!
+This is an OFFICIAL Sifzz module.
 
 Web/HTTP Module for Sifzz
 Place this file in the modules/ directory
