@@ -24,7 +24,7 @@ A beginner-friendly scripting language with natural syntax
 14. [Control Flow](#control-flow)
 15. [Complete Examples](#complete-examples)
 
-[NEXT PAGE - Modules](mdg)
+[NEXT PAGE - Modules](modules/mdg)
 
 ---
 
