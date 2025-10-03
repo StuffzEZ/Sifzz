@@ -1,3 +1,4 @@
 # Modules
-[fileOperations](fileOperations)
-[tkinterGui](fileOperations)
+- [fileOperations](fileOperations) | OFFICIAL
+- [tkinterGui](fileOperations) | OFFICIAL
+- [webHTTP](webHTTP) | OFFICIAL
