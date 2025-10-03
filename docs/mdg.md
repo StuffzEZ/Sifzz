@@ -7,20 +7,21 @@
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Module Architecture](#module-architecture)
-3. [Creating Your First Module](#creating-your-first-module)
-4. [Module Registration](#module-registration)
-5. [Accessing Interpreter State](#accessing-interpreter-state)
-6. [Example Modules](#example-modules)
-7. [Best Practices](#best-practices)
-8. [Built-in Modules](#built-in-modules)
-9. [Contributing](#contributing)
+2. [Installing Modules](#installing-modules)
+3. [Module Architecture](#module-architecture)
+4. [Creating Your First Module](#creating-your-first-module)
+5. [Module Registration](#module-registration)
+6. [Accessing Interpreter State](#accessing-interpreter-state)
+7. [Example Modules](#example-modules)
+8. [Best Practices](#best-practices)
+9. [Built-in Modules](#built-in-modules)
+10. [Contributing](#contributing)
 
 ---
 
 ## Introduction
 
-Sifzz v3.0 introduces a **modular architecture** that allows developers to extend the language with custom Python modules. This makes contributing to Sifzz easier and enables domain-specific extensions without modifying the core interpreter.
+Sifzz has a **modular architecture** that allows developers to extend the language with custom Python modules. This makes contributing to Sifzz easier and enables domain-specific extensions without modifying the core interpreter.
 
 ### Why Modules?
 
@@ -32,6 +33,10 @@ Sifzz v3.0 introduces a **modular architecture** that allows developers to exten
 
 ---
 
+## Installing Modules
+To install a module, download its .py file FROM THE OFFICIAL Sifzz REPOSITORY ONLY and put it in `modules/`. Sifzz should automatically detect this. If the module that you are installing isn't from the official repository, make sure that they have been approved in the [Approved Modules List](aml.md).
+---
+
 ## Module Architecture
 
 ### Directory Structure
@@ -40,12 +45,7 @@ Sifzz v3.0 introduces a **modular architecture** that allows developers to exten
 sifzz-project/
 ├── sifzz.py                  # Main interpreter
 ├── modules/                  # Module directory
-│   ├── file_operations.py    # File I/O module
-│   ├── web_operations.py     # HTTP/Web module
-│   ├── json_module.py        # JSON parsing module
-│   └── custom_module.py      # Your custom module
-├── example-scripts/          # Example .sfzz scripts
-└── launcher.py               # Script launcher
+│   ├── mdg.md                # Module Development Guide (This file)
 ```
 
 ### How Modules Work
