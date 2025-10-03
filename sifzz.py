@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Sifzz (.sfzz) Interpreter v2.0
-A simple, beginner-friendly scripting language with natural syntax
+Sifzz (.sfzz) Interpreter v3.0
+A simple, beginner-friendly scripting language with modular architecture
 """
 
 import re
@@ -9,7 +9,27 @@ import sys
 import random
 import time
 import math
+import importlib.util
 from pathlib import Path
+
+class SifzzModule:
+    """Base class for Sifzz modules"""
+    
+    def __init__(self, interpreter):
+        self.interpreter = interpreter
+        self.commands = {}
+        self.register_commands()
+    
+    def register_commands(self):
+        """Override this method to register module commands"""
+        pass
+    
+    def register(self, pattern, handler, description=""):
+        """Register a command pattern with its handler"""
+        self.commands[pattern] = {
+            'handler': handler,
+            'description': description
+        }
 
 class SifzzInterpreter:
     def __init__(self):
@@ -18,7 +38,55 @@ class SifzzInterpreter:
         self.lists = {}
         self.loop_break = False
         self.loop_continue = False
+        self.modules = []
+        self.all_lines = []
         
+        # Load built-in modules
+        self.load_builtin_modules()
+        
+        # Load external modules from modules/ directory
+        self.load_external_modules()
+    
+    def load_builtin_modules(self):
+        """Load built-in core modules"""
+        # Core functionality is built into the interpreter
+        pass
+    
+    def load_external_modules(self, directory="modules"):
+        """Load external Python modules from directory"""
+        module_dir = Path(directory)
+        
+        if not module_dir.exists():
+            return
+        
+        # Find all .py files in modules directory
+        for module_file in module_dir.glob("*.py"):
+            if module_file.stem.startswith("_"):
+                continue
+                
+            try:
+                # Load the module dynamically
+                spec = importlib.util.spec_from_file_location(
+                    module_file.stem, 
+                    module_file
+                )
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Look for SifzzModule classes
+                for item_name in dir(module):
+                    item = getattr(module, item_name)
+                    if (isinstance(item, type) and 
+                        issubclass(item, SifzzModule) and 
+                        item is not SifzzModule):
+                        # Instantiate and register the module
+                        module_instance = item(self)
+                        self.modules.append(module_instance)
+                        print(f"[INFO] Loaded module: {module_file.stem}")
+            
+            except Exception as e:
+                print(f"[WARNING] Failed to load module {module_file.stem}: {e}")
+    
     def run_file(self, filename):
         """Run a .sfzz file"""
         try:
@@ -31,8 +99,8 @@ class SifzzInterpreter:
     
     def run(self, code):
         """Run Sifzz code"""
-        lines = code.split('\n')
-        self.execute_block(lines, 0, len(lines))
+        self.all_lines = code.split('\n')
+        self.execute_block(self.all_lines, 0, len(self.all_lines))
     
     def execute_block(self, lines, start, end):
         """Execute a block of code"""
@@ -84,10 +152,25 @@ class SifzzInterpreter:
                 self.loop_continue = True
                 return i
             
-            self.execute_line(line)
+            # Try to execute line
+            if not self.execute_line(line):
+                # If core didn't handle it, try modules
+                self.try_module_commands(line)
+            
             i += 1
         
         return i
+    
+    def try_module_commands(self, line):
+        """Try to execute a command using loaded modules"""
+        for module in self.modules:
+            for pattern, command_info in module.commands.items():
+                match = re.match(pattern, line)
+                if match:
+                    handler = command_info['handler']
+                    handler(match)
+                    return True
+        return False
     
     def find_block_end(self, lines, start, end_marker):
         """Find the end of a block"""
@@ -100,17 +183,14 @@ class SifzzInterpreter:
         while i < len(lines):
             line = lines[i].strip()
             
-            # Check if this line starts a new block
             if any(line.startswith(starter) for starter in block_starters):
                 depth += 1
             
-            # Check if this line ends a block
             if any(line == ender for ender in block_enders):
                 depth -= 1
                 if depth == 0:
                     return i
             
-            # Special case for else/else if (doesn't increase depth)
             if line.startswith('else if ') or line == 'else:':
                 if depth == 1:
                     return i - 1
@@ -131,13 +211,11 @@ class SifzzInterpreter:
         block_start = start + 1
         block_end = self.find_block_end(lines, start, 'end if')
         
-        # Find else if and else clauses
         i = block_start
         current_start = block_start
         executed = False
         
         if self.eval_condition(condition):
-            # Find where this if block ends (before else if/else)
             clause_end = block_end
             for j in range(block_start, block_end + 1):
                 if lines[j].strip().startswith('else if ') or lines[j].strip() == 'else:':
@@ -146,7 +224,6 @@ class SifzzInterpreter:
             self.execute_block(lines, block_start, clause_end + 1)
             executed = True
         
-        # Check else if and else
         if not executed:
             i = block_start
             while i <= block_end:
@@ -229,11 +306,9 @@ class SifzzInterpreter:
         var_name = match.group(1)
         list_expr = match.group(2)
         
-        # Get the list
         if list_expr in self.lists:
             items = self.lists[list_expr]
         else:
-            # Try to evaluate as range
             range_match = re.match(r'range\((\d+),\s*(\d+)\)', list_expr)
             if range_match:
                 items = list(range(int(range_match.group(1)), int(range_match.group(2))))
@@ -255,40 +330,39 @@ class SifzzInterpreter:
         return block_end + 1
     
     def execute_line(self, line):
-        """Execute a single line of code"""
-        # Set variable: set x to 5
+        """Execute a single line of code - returns True if handled"""
+        
+        # Set variable
         if line.startswith('set ') and ' to ' in line:
             match = re.match(r'set (\w+) to (.+)', line)
             if match:
                 var_name = match.group(1)
                 value = self.eval_expression(match.group(2))
                 self.variables[var_name] = value
-                return
+                return True
         
-        # Create list: create list myList
+        # Create list
         if line.startswith('create list '):
             list_name = line.split()[2]
             self.lists[list_name] = []
-            return
+            return True
         
-        # Add to list: add "item" to myList
+        # Add to list/variable
         if line.startswith('add ') and ' to ' in line:
             match = re.match(r'add (.+) to (\w+)', line)
             if match:
                 value = self.eval_expression(match.group(1))
                 target = match.group(2)
                 
-                # Check if target is a list
                 if target in self.lists:
                     self.lists[target].append(value)
-                # Otherwise treat as numeric addition to variable
                 elif target in self.variables:
                     self.variables[target] += value
                 else:
                     self.variables[target] = value
-                return
+                return True
         
-        # Remove from list: remove "item" from myList
+        # Remove from list
         if line.startswith('remove ') and ' from ' in line:
             match = re.match(r'remove (.+) from (\w+)', line)
             if match:
@@ -299,9 +373,9 @@ class SifzzInterpreter:
                         self.lists[list_name].remove(value)
                     except ValueError:
                         pass
-                return
+                return True
         
-        # Get list size: set x to size of myList
+        # Get list size
         if 'size of' in line:
             match = re.match(r'set (\w+) to size of (\w+)', line)
             if match:
@@ -309,9 +383,9 @@ class SifzzInterpreter:
                 list_name = match.group(2)
                 if list_name in self.lists:
                     self.variables[var_name] = len(self.lists[list_name])
-                return
+                return True
         
-        # Get list item: set x to item 0 of myList
+        # Get list item
         if 'item' in line and ' of ' in line:
             match = re.match(r'set (\w+) to item (\d+) of (\w+)', line)
             if match:
@@ -320,42 +394,42 @@ class SifzzInterpreter:
                 list_name = match.group(3)
                 if list_name in self.lists and index < len(self.lists[list_name]):
                     self.variables[var_name] = self.lists[list_name][index]
-                return
+                return True
         
-        # Clear list: clear myList
+        # Clear list
         if line.startswith('clear '):
             list_name = line.split()[1]
             if list_name in self.lists:
                 self.lists[list_name].clear()
-            return
+            return True
         
-        # Say/Print: say "Hello" or say x
+        # Say/Print
         if line.startswith('say '):
             message = line[4:].strip()
             output = self.eval_expression(message)
             print(output)
-            return
+            return True
         
-        # Say without newline: write "Hello"
+        # Write without newline
         if line.startswith('write '):
             message = line[6:].strip()
             output = self.eval_expression(message)
             print(output, end='')
-            return
+            return True
         
-        # Say with newline: newline
+        # Newline
         if line == 'newline':
             print()
-            return
+            return True
         
-        # Wait: wait 2 seconds
+        # Wait
         if line.startswith('wait '):
             match = re.match(r'wait (\d+\.?\d*) seconds?', line)
             if match:
                 time.sleep(float(match.group(1)))
-                return
+                return True
         
-        # Subtract from variable: subtract 1 from x
+        # Subtract
         if line.startswith('subtract ') and ' from ' in line:
             match = re.match(r'subtract (.+) from (\w+)', line)
             if match:
@@ -363,9 +437,9 @@ class SifzzInterpreter:
                 var_name = match.group(2)
                 if var_name in self.variables:
                     self.variables[var_name] -= value
-                return
+                return True
         
-        # Multiply variable: multiply x by 2
+        # Multiply
         if line.startswith('multiply ') and ' by ' in line:
             match = re.match(r'multiply (\w+) by (.+)', line)
             if match:
@@ -373,9 +447,9 @@ class SifzzInterpreter:
                 value = self.eval_expression(match.group(2))
                 if var_name in self.variables:
                     self.variables[var_name] *= value
-                return
+                return True
         
-        # Divide variable: divide x by 2
+        # Divide
         if line.startswith('divide ') and ' by ' in line:
             match = re.match(r'divide (\w+) by (.+)', line)
             if match:
@@ -383,28 +457,26 @@ class SifzzInterpreter:
                 value = self.eval_expression(match.group(2))
                 if var_name in self.variables and value != 0:
                     self.variables[var_name] /= value
-                return
+                return True
         
-        # Call function: call myFunction
+        # Call function
         if line.startswith('call '):
             func_name = line[5:].strip()
             if func_name in self.functions:
                 func_start, func_end = self.functions[func_name]
-                # Need access to original lines - store them
-                if hasattr(self, 'all_lines'):
-                    self.execute_block(self.all_lines, func_start, func_end)
-                return
+                self.execute_block(self.all_lines, func_start, func_end)
+                return True
         
-        # Ask for input: ask "What's your name?" and store in name
+        # Ask for input
         if line.startswith('ask '):
             match = re.match(r'ask "([^"]+)" and store in (\w+)', line)
             if match:
                 prompt = match.group(1)
                 var_name = match.group(2)
                 self.variables[var_name] = input(prompt + " ")
-                return
+                return True
         
-        # Ask for number: ask for number "Enter age:" and store in age
+        # Ask for number
         if line.startswith('ask for number '):
             match = re.match(r'ask for number "([^"]+)" and store in (\w+)', line)
             if match:
@@ -414,9 +486,9 @@ class SifzzInterpreter:
                     self.variables[var_name] = float(input(prompt + " "))
                 except ValueError:
                     self.variables[var_name] = 0
-                return
+                return True
         
-        # Random number: set x to random number between 1 and 10
+        # Random number
         if 'random number between' in line:
             match = re.match(r'set (\w+) to random number between (.+) and (.+)', line)
             if match:
@@ -424,9 +496,9 @@ class SifzzInterpreter:
                 min_val = int(self.eval_expression(match.group(2)))
                 max_val = int(self.eval_expression(match.group(3)))
                 self.variables[var_name] = random.randint(min_val, max_val)
-                return
+                return True
         
-        # Random choice: set x to random choice from myList
+        # Random choice
         if 'random choice from' in line:
             match = re.match(r'set (\w+) to random choice from (\w+)', line)
             if match:
@@ -434,30 +506,32 @@ class SifzzInterpreter:
                 list_name = match.group(2)
                 if list_name in self.lists and self.lists[list_name]:
                     self.variables[var_name] = random.choice(self.lists[list_name])
-                return
+                return True
         
-        # Increase: increase x
+        # Increase
         if line.startswith('increase '):
             var_name = line.split()[1]
             if var_name in self.variables:
                 self.variables[var_name] += 1
             else:
                 self.variables[var_name] = 1
-            return
+            return True
         
-        # Decrease: decrease x
+        # Decrease
         if line.startswith('decrease '):
             var_name = line.split()[1]
             if var_name in self.variables:
                 self.variables[var_name] -= 1
             else:
                 self.variables[var_name] = -1
-            return
+            return True
         
-        # Exit program: exit
+        # Exit
         if line == 'exit':
             sys.exit(0)
-            return
+            return True
+        
+        return False
     
     def eval_expression(self, expr):
         """Evaluate an expression"""
@@ -515,7 +589,7 @@ class SifzzInterpreter:
         for var_name, var_value in self.variables.items():
             expr = expr.replace(var_name, str(var_value))
         
-        # Handle string concatenation
+        # String concatenation
         if '+' in original_expr:
             parts = original_expr.split('+')
             result = ''
@@ -532,10 +606,8 @@ class SifzzInterpreter:
     
     def eval_condition(self, condition):
         """Evaluate a condition"""
-        # Store original for string handling
         original = condition
         
-        # Replace natural language operators
         condition = condition.replace(' is not ', ' != ')
         condition = condition.replace(' is ', ' == ')
         condition = condition.replace(' equals ', ' == ')
@@ -543,18 +615,15 @@ class SifzzInterpreter:
         condition = condition.replace(' less than or equal to ', ' <= ')
         condition = condition.replace(' greater than ', ' > ')
         condition = condition.replace(' less than ', ' < ')
-        condition = condition.replace(' and ', ' and ')
-        condition = condition.replace(' or ', ' or ')
-        condition = condition.replace(' not ', ' not ')
         
-        # Handle 'contains' operator for strings and lists
+        # Handle 'contains'
         if ' contains ' in original:
             parts = original.split(' contains ')
             container = self.eval_expression(parts[0].strip())
             item = self.eval_expression(parts[1].strip())
             return item in container
         
-        # Replace variables with their values
+        # Replace variables
         for var_name, var_value in self.variables.items():
             if isinstance(var_value, str):
                 condition = condition.replace(var_name, f'"{var_value}"')
@@ -565,25 +634,20 @@ class SifzzInterpreter:
             return eval(condition)
         except:
             return False
-    
-    def run(self, code):
-        """Run Sifzz code (override to store lines)"""
-        self.all_lines = code.split('\n')
-        self.execute_block(self.all_lines, 0, len(self.all_lines))
 
 def main():
     """Main entry point"""
     if len(sys.argv) < 2:
         print("=" * 50)
-        print("Sifzz Interpreter v2.0")
+        print("Sifzz Interpreter v3.0 (Modular)")
         print("=" * 50)
         print("\nUsage: python sifzz.py <filename.sfzz>")
-        print("\nQuick Example:")
+        print("\nFeatures:")
+        print("  - Natural, beginner-friendly syntax")
+        print("  - Modular architecture for extensions")
+        print("  - Place Python modules in modules/ directory")
+        print("\nExample:")
         print('  say "Hello, World!"')
-        print('  set x to 10')
-        print('  say x')
-        print("\nFor full documentation, visit:")
-        print("  https://github.com/yourusername/sifzz")
         print("=" * 50)
         sys.exit(1)
     
