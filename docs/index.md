@@ -414,6 +414,672 @@ create list colors
 add "red" to colors
 add "blue" to colors
 add "green" to colors
+
+set picked to random choice from colors
+say picked
+```
+
+---
+
+## Control Flow
+
+### Break Statement
+
+Exit a loop early:
+
+```
+set counter to 0
+
+loop while counter less than 10:
+    say counter
+    increase counter
+    
+    if counter is 5:
+        break
+    end if
+end loop
+
+say "Loop ended at 5"
+```
+
+### Continue Statement
+
+Skip to the next iteration:
+
+```
+repeat 5 times:
+    set num to random number between 1 and 10
+    
+    if num less than 5:
+        continue
+    end if
+    
+    say num
+end repeat
+```
+
+### Exit Program
+
+```
+set value to -1
+
+if value less than 0:
+    say "Error: Negative value!"
+    exit
+end if
+
+say "This won't run"
+```
+
+---
+
+## Complete Examples
+
+### Example 1: Number Guessing Game
+
+```
+# Number Guessing Game
+say "=== Number Guessing Game ==="
+say ""
+
+set target to random number between 1 and 10
+set guesses to 0
+set won to false
+
+loop while guesses less than 3:
+    ask for number "Guess a number (1-10):" and store in guess
+    increase guesses
+    
+    if guess is target:
+        say "Correct! You won!"
+        set won to true
+        break
+    else if guess greater than target:
+        say "Too high!"
+    else:
+        say "Too low!"
+    end if
+end loop
+
+if won is false:
+    say "Game Over! The number was:"
+    say target
+end if
+```
+
+### Example 2: Calculator
+
+```
+# Simple Calculator
+say "=== Calculator ==="
+say ""
+
+ask for number "Enter first number:" and store in num1
+ask for number "Enter second number:" and store in num2
+
+say ""
+say "Choose operation:"
+say "1. Add"
+say "2. Subtract"
+say "3. Multiply"
+say "4. Divide"
+
+ask for number "Enter choice (1-4):" and store in choice
+
+if choice is 1:
+    set result to num1 + num2
+    say "Result: "
+    say result
+else if choice is 2:
+    set result to num1 - num2
+    say "Result: "
+    say result
+else if choice is 3:
+    set result to num1 * num2
+    say "Result: "
+    say result
+else if choice is 4:
+    if num2 is not 0:
+        set result to num1 / num2
+        say "Result: "
+        say result
+    else:
+        say "Error: Cannot divide by zero!"
+    end if
+else:
+    say "Invalid choice!"
+end if
+```
+
+### Example 3: To-Do List
+
+```
+# To-Do List Manager
+say "=== To-Do List Manager ==="
+create list tasks
+set running to true
+
+loop while running is true:
+    say ""
+    say "1. Add task"
+    say "2. View tasks"
+    say "3. Remove task"
+    say "4. Exit"
+    say ""
+    
+    ask for number "Choose option:" and store in option
+    
+    if option is 1:
+        ask "Enter task:" and store in task
+        add task to tasks
+        say "Task added!"
+        
+    else if option is 2:
+        set count to size of tasks
+        
+        if count is 0:
+            say "No tasks!"
+        else:
+            say "Your tasks:"
+            set index to 0
+            for each task in tasks:
+                say index
+                say ". "
+                say task
+                increase index
+            end for
+        end if
+        
+    else if option is 3:
+        ask for number "Enter task number:" and store in taskNum
+        set taskToRemove to item taskNum of tasks
+        remove taskToRemove from tasks
+        say "Task removed!"
+        
+    else if option is 4:
+        say "Goodbye!"
+        set running to false
+        
+    else:
+        say "Invalid option!"
+    end if
+end loop
+```
+
+### Example 4: Quiz Game
+
+```
+# Quiz Game
+say "=== Quiz Time! ==="
+say ""
+
+set score to 0
+
+# Question 1
+ask "What is 5 + 3? " and store in answer1
+if answer1 is "8":
+    say "Correct!"
+    add 1 to score
+else:
+    say "Wrong! The answer is 8"
+end if
+
+say ""
+
+# Question 2
+ask "What is the capital of France? " and store in answer2
+set lower to answer2 lowercase
+if lower is "paris":
+    say "Correct!"
+    add 1 to score
+else:
+    say "Wrong! The answer is Paris"
+end if
+
+say ""
+
+# Question 3
+ask "Is the sky blue? (yes/no) " and store in answer3
+set lower to answer3 lowercase
+if lower is "yes":
+    say "Correct!"
+    add 1 to score
+else:
+    say "Wrong! The answer is yes"
+end if
+
+say ""
+say "Your final score: "
+say score
+say " out of 3"
+
+if score is 3:
+    say "Perfect score!"
+else if score greater than or equal to 2:
+    say "Good job!"
+else:
+    say "Keep practicing!"
+end if
+```
+
+### Example 5: Countdown Timer
+
+```
+# Countdown Timer
+say "=== Countdown Timer ==="
+ask for number "Enter seconds:" and store in seconds
+
+say "Starting countdown..."
+
+loop while seconds greater than 0:
+    say seconds
+    wait 1 second
+    decrease seconds
+end loop
+
+say "Time's up!"
+```
+
+### Example 6: Password Generator
+
+```
+# Simple Password Generator
+say "=== Password Generator ==="
+
+create list chars
+add "a" to chars
+add "b" to chars
+add "c" to chars
+add "d" to chars
+add "e" to chars
+add "f" to chars
+add "g" to chars
+add "h" to chars
+add "1" to chars
+add "2" to chars
+add "3" to chars
+add "4" to chars
+add "5" to chars
+
+ask for number "Password length:" and store in length
+
+set password to ""
+set count to 0
+
+loop while count less than length:
+    set char to random choice from chars
+    set password to password + char
+    increase count
+end loop
+
+say "Your password: "
+say password
+```
+
+### Example 7: Rock Paper Scissors
+
+```
+# Rock Paper Scissors
+say "=== Rock Paper Scissors ==="
+
+create list choices
+add "rock" to choices
+add "paper" to choices
+add "scissors" to choices
+
+set playing to true
+
+loop while playing is true:
+    say ""
+    ask "Choose rock, paper, or scissors (or 'quit'):" and store in playerChoice
+    set playerChoice to playerChoice lowercase
+    
+    if playerChoice is "quit":
+        say "Thanks for playing!"
+        set playing to false
+        continue
+    end if
+    
+    set computerChoice to random choice from choices
+    
+    say "Computer chose: "
+    say computerChoice
+    
+    if playerChoice is computerChoice:
+        say "It's a tie!"
+    else if playerChoice is "rock":
+        if computerChoice is "scissors":
+            say "You win! Rock beats scissors"
+        else:
+            say "You lose! Paper beats rock"
+        end if
+    else if playerChoice is "paper":
+        if computerChoice is "rock":
+            say "You win! Paper beats rock"
+        else:
+            say "You lose! Scissors beats paper"
+        end if
+    else if playerChoice is "scissors":
+        if computerChoice is "paper":
+            say "You win! Scissors beats paper"
+        else:
+            say "You lose! Rock beats scissors"
+        end if
+    else:
+        say "Invalid choice!"
+    end if
+end loop
+```
+
+### Example 8: Storytelling Adventure
+
+```
+# Interactive Story
+say "=== The Forest Adventure ==="
+say ""
+
+function intro:
+    say "You wake up in a dark forest..."
+    say "There are two paths ahead."
+end function
+
+function leftPath:
+    say ""
+    say "You take the left path."
+    say "You find a treasure chest!"
+    
+    ask "Do you open it? (yes/no) " and store in choice
+    set choice to choice lowercase
+    
+    if choice is "yes":
+        say "You found 100 gold coins!"
+    else:
+        say "You walk away cautiously..."
+    end if
+end function
+
+function rightPath:
+    say ""
+    say "You take the right path."
+    say "You encounter a friendly wolf!"
+    say "The wolf leads you to safety."
+end function
+
+call intro
+
+say ""
+ask "Which path do you take? (left/right) " and store in choice
+set choice to choice lowercase
+
+if choice is "left":
+    call leftPath
+else if choice is "right":
+    call rightPath
+else:
+    say "You stand still, paralyzed by fear..."
+end if
+
+say ""
+say "=== The End ==="
+```
+
+---
+
+## Best Practices
+
+### 1. Use Descriptive Variable Names
+
+**Good:**
+```
+set playerHealth to 100
+set enemyDamage to 25
+```
+
+**Bad:**
+```
+set x to 100
+set y to 25
+```
+
+### 2. Add Comments
+
+```
+# Initialize game variables
+set score to 0
+set lives to 3
+
+# Main game loop
+loop while lives greater than 0:
+    # Game logic here
+end loop
+```
+
+### 3. Break Down Complex Logic into Functions
+
+```
+function checkGameOver:
+    if lives less than or equal to 0:
+        say "Game Over!"
+        exit
+    end if
+end function
+
+function updateScore:
+    add 10 to score
+    say "Score: "
+    say score
+end function
+```
+
+### 4. Use Meaningful Indentation
+
+While Sifzz doesn't require indentation, it makes code more readable:
+
+```
+if score greater than 100:
+    say "High score!"
+    if score greater than 500:
+        say "Amazing!"
+    end if
+end if
+```
+
+### 5. Validate User Input
+
+```
+ask for number "Enter age (1-100):" and store in age
+
+if age less than 1 or age greater than 100:
+    say "Invalid age!"
+    exit
+end if
+```
+
+---
+
+## Error Handling Tips
+
+### Division by Zero
+
+```
+ask for number "Enter divisor:" and store in divisor
+
+if divisor is 0:
+    say "Cannot divide by zero!"
+else:
+    set result to 100 / divisor
+    say result
+end if
+```
+
+### Empty List Access
+
+```
+set count to size of myList
+
+if count is 0:
+    say "List is empty!"
+else:
+    set first to item 0 of myList
+    say first
+end if
+```
+
+### Invalid List Index
+
+```
+set count to size of myList
+ask for number "Enter index:" and store in index
+
+if index less than 0 or index greater than or equal to count:
+    say "Invalid index!"
+else:
+    set item to item index of myList
+    say item
+end if
+```
+
+---
+
+## Language Features Summary
+
+| Feature | Syntax Example |
+|---------|---------------|
+| Variables | `set x to 5` |
+| Output | `say "Hello"` |
+| Input | `ask "Name?" and store in name` |
+| Addition | `add 5 to x` |
+| Subtraction | `subtract 3 from x` |
+| Multiplication | `multiply x by 2` |
+| Division | `divide x by 4` |
+| If Statement | `if x is 5:` ... `end if` |
+| While Loop | `loop while x less than 10:` ... `end loop` |
+| For Loop | `repeat 5 times:` ... `end repeat` |
+| For Each | `for each item in list:` ... `end for` |
+| Functions | `function name:` ... `end function` |
+| Lists | `create list myList` |
+| Random | `set x to random number between 1 and 10` |
+| Break | `break` |
+| Continue | `continue` |
+| Exit | `exit` |
+
+---
+
+## Quick Reference Card
+
+```
+# Variables
+set name to "value"
+increase x
+decrease x
+
+# Output
+say "text"
+write "text"
+newline
+
+# Input
+ask "prompt?" and store in var
+ask for number "prompt?" and store in var
+
+# Math
+add X to var
+subtract X from var
+multiply var by X
+divide var by X
+
+# Conditionals
+if condition:
+    # code
+else if condition:
+    # code
+else:
+    # code
+end if
+
+# Loops
+repeat X times:
+    # code
+end repeat
+
+loop while condition:
+    # code
+end loop
+
+for each item in list:
+    # code
+end for
+
+# Lists
+create list name
+add "item" to list
+remove "item" from list
+set x to size of list
+set x to item 0 of list
+clear list
+
+# Functions
+function name:
+    # code
+end function
+
+call name
+
+# Control
+break
+continue
+exit
+wait X seconds
+
+# Random
+set x to random number between 1 and 10
+set x to random choice from list
+
+# String Operations
+set x to text uppercase
+set x to text lowercase
+set x to length of text
+
+# Math Functions
+set x to sqrt(num)
+set x to round(num)
+set x to abs(num)
+
+# Operators
+is, equals (==)
+is not (!=)
+greater than (>)
+less than (<)
+greater than or equal to (>=)
+less than or equal to (<=)
+and, or, not
+contains
+```
+
+---
+
+## Contributing & Support
+
+Sifzz is designed to be simple and beginner-friendly. If you have suggestions for new features or improvements, feel free to contribute!
+
+### Future Features Under Consideration
+
+- File I/O operations
+- Dictionary/map support
+- Try/catch error handling
+- Import system for libraries
+- Object-oriented features
+- More built-in functions
+
+---
+
+## License
+
+Sifzz is open source and free to use for educational purposes.
+
+---
+
+**Happy Coding! 🎉**
 ```
 
 ### Removing Items
@@ -629,3 +1295,4 @@ create list colors
 add "red" to colors
 add "blue" to colors
 add "green" to colors
+```
