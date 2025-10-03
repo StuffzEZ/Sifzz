@@ -34,7 +34,7 @@ Sifzz has a **modular architecture** that allows developers to extend the langua
 ---
 
 ## Installing Modules
-To install a module, download its .py file FROM THE OFFICIAL Sifzz REPOSITORY ONLY and put it in `modules/`. Sifzz should automatically detect this. If the module that you are installing isn't from the official repository, make sure that they have been approved in the [Approved Modules List](arl.md).
+To install a module, download its .py file FROM THE OFFICIAL Sifzz REPOSITORY ONLY and put it in `modules/`. Sifzz should automatically detect this. If the module that you are installing isn't from the official repository, make sure that they have been approved in the [Approved Modules List](arl).
 ---
 
 ## Module Architecture
