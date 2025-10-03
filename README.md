@@ -4,9 +4,10 @@ A programming language like Skript
 
 # Documentation
 <hr>
+
 # Sifzz Programming Language Documentation
 
-**Version 2.0** | A beginner-friendly scripting language with natural syntax
+A beginner-friendly scripting language with natural syntax
 
 ---
 
