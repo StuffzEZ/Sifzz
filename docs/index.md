@@ -24,7 +24,7 @@ A beginner-friendly scripting language with natural syntax
 14. [Control Flow](#control-flow)
 15. [Complete Examples](#complete-examples)
 
-[NEXT PAGE - Module Development Guide](mdg)
+[NEXT PAGE - Modules](mdg)
 
 ---
 
@@ -32,7 +32,10 @@ A beginner-friendly scripting language with natural syntax
 
 ### Installation
 
-Save the interpreter as `sifzz.py` on your computer.
+To install Sifzz, follow these steps:
+1. Download the release ZIP from the latest release
+2. Unzip it into your project's directory
+After this, you have installed Sifzz on your project
 
 ### Running Programs
 
