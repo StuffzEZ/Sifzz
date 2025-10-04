@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Sifzz (.sfzz) Interpreter v3.0
+Sifzz (.sfzz) Interpreter v3.2
 A simple, beginner-friendly scripting language with modular architecture
+Fixed module command execution with proper class detection
 """
 
 import re
@@ -11,6 +12,14 @@ import time
 import math
 import importlib.util
 from pathlib import Path
+
+# Debug mode toggle - can be overridden by command-line argument
+DEBUG_MODE = False
+
+def set_debug_mode(enabled):
+    """Set debug mode globally"""
+    global DEBUG_MODE
+    DEBUG_MODE = enabled
 
 class SifzzModule:
     """Base class for Sifzz modules"""
@@ -54,16 +63,33 @@ class SifzzInterpreter:
     
     def load_external_modules(self, directory="modules"):
         """Load external Python modules from directory"""
+        if DEBUG_MODE:
+            print(f"[DEBUG] Looking for modules in: {directory}")
+        
         module_dir = Path(directory)
         
         if not module_dir.exists():
+            if DEBUG_MODE:
+                print(f"[DEBUG] Directory '{directory}' does not exist!")
             return
         
+        if DEBUG_MODE:
+            print(f"[DEBUG] Found directory: {module_dir}")
+        
         # Find all .py files in modules directory
-        for module_file in module_dir.glob("*.py"):
+        py_files = list(module_dir.glob("*.py"))
+        if DEBUG_MODE:
+            print(f"[DEBUG] Found {len(py_files)} .py files: {[f.name for f in py_files]}")
+        
+        for module_file in py_files:
             if module_file.stem.startswith("_"):
+                if DEBUG_MODE:
+                    print(f"[DEBUG] Skipping {module_file.name} (starts with _)")
                 continue
-                
+            
+            if DEBUG_MODE:
+                print(f"[DEBUG] Attempting to load: {module_file.name}")
+            
             try:
                 # Load the module dynamically
                 spec = importlib.util.spec_from_file_location(
@@ -71,21 +97,36 @@ class SifzzInterpreter:
                     module_file
                 )
                 module = importlib.util.module_from_spec(spec)
+                if DEBUG_MODE:
+                    print(f"[DEBUG] Executing module: {module_file.stem}")
                 spec.loader.exec_module(module)
+                if DEBUG_MODE:
+                    print(f"[DEBUG] Module executed successfully")
                 
-                # Look for SifzzModule classes
+                # Look for SifzzModule classes by checking class names in MRO
+                found_module = False
                 for item_name in dir(module):
                     item = getattr(module, item_name)
-                    if (isinstance(item, type) and 
-                        issubclass(item, SifzzModule) and 
-                        item is not SifzzModule):
-                        # Instantiate and register the module
-                        module_instance = item(self)
-                        self.modules.append(module_instance)
-                        print(f"[INFO] Loaded module: {module_file.stem}")
+                    if isinstance(item, type):
+                        # Check if this class inherits from SifzzModule (by name)
+                        base_names = [base.__name__ for base in item.__mro__]
+                        if 'SifzzModule' in base_names and item.__name__ != 'SifzzModule':
+                            if DEBUG_MODE:
+                                print(f"[DEBUG] Found SifzzModule subclass: {item_name}")
+                            # Instantiate and register the module
+                            module_instance = item(self)
+                            self.modules.append(module_instance)
+                            print(f"[INFO] Loaded module: {module_file.stem}")
+                            found_module = True
+                
+                if DEBUG_MODE and not found_module:
+                    print(f"[DEBUG] No SifzzModule subclass found in {module_file.name}")
             
             except Exception as e:
                 print(f"[WARNING] Failed to load module {module_file.stem}: {e}")
+                if DEBUG_MODE:
+                    import traceback
+                    traceback.print_exc()
     
     def run_file(self, filename):
         """Run a .sfzz file"""
@@ -101,6 +142,15 @@ class SifzzInterpreter:
         """Run Sifzz code"""
         self.all_lines = code.split('\n')
         self.execute_block(self.all_lines, 0, len(self.all_lines))
+    
+    def run_line(self, line):
+        """Execute a single line of Sifzz code (for module callbacks)"""
+        line = line.strip()
+        if not line or line.startswith('#'):
+            return
+        
+        if not self.execute_line(line):
+            self.try_module_commands(line)
     
     def execute_block(self, lines, start, end):
         """Execute a block of code"""
@@ -152,10 +202,10 @@ class SifzzInterpreter:
                 self.loop_continue = True
                 return i
             
-            # Try to execute line
+            # Try to execute line - first core commands, then modules
             if not self.execute_line(line):
-                # If core didn't handle it, try modules
-                self.try_module_commands(line)
+                if not self.try_module_commands(line):
+                    print(f"[WARNING] Unknown command: {line}")
             
             i += 1
         
@@ -168,8 +218,15 @@ class SifzzInterpreter:
                 match = re.match(pattern, line)
                 if match:
                     handler = command_info['handler']
-                    handler(match)
-                    return True
+                    try:
+                        handler(match)
+                        return True
+                    except Exception as e:
+                        print(f"[ERROR] Module command failed: {e}")
+                        if DEBUG_MODE:
+                            import traceback
+                            traceback.print_exc()
+                        return False
         return False
     
     def find_block_end(self, lines, start, end_marker):
@@ -637,11 +694,37 @@ class SifzzInterpreter:
 
 def main():
     """Main entry point"""
-    if len(sys.argv) < 2:
+    # Parse command-line arguments
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description='Sifzz Interpreter v3.2 - A beginner-friendly scripting language',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python sifzz.py program.sfzz
+  python sifzz.py program.sfzz --debug
+  python sifzz.py program.sfzz -d
+        """
+    )
+    
+    parser.add_argument('filename', nargs='?', help='Sifzz script file (.sfzz)')
+    parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
+    
+    args = parser.parse_args()
+    
+    # Enable debug mode if flag is set
+    if args.debug:
+        set_debug_mode(True)
+    
+    # Show usage if no filename provided
+    if not args.filename:
         print("=" * 50)
-        print("Sifzz Interpreter v3.0 (Modular)")
+        print("Sifzz Interpreter v3.2 (Fixed Modules)")
         print("=" * 50)
-        print("\nUsage: python sifzz.py <filename.sfzz>")
+        print("\nUsage: python sifzz.py <filename.sfzz> [--debug]")
+        print("\nOptions:")
+        print("  -d, --debug    Enable debug output")
         print("\nFeatures:")
         print("  - Natural, beginner-friendly syntax")
         print("  - Modular architecture for extensions")
@@ -652,7 +735,7 @@ def main():
         sys.exit(1)
     
     interpreter = SifzzInterpreter()
-    interpreter.run_file(sys.argv[1])
+    interpreter.run_file(args.filename)
 
 if __name__ == "__main__":
     main()

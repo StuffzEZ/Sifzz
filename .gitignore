@@ -1,1 +1,8 @@
+# Ignore ZIPs & Release Building directory
 /release
+/zips
+# Ignore testing directory (labelled gitignore because its easy for me to know that git ignores it)
+/gitignore
+# Ignore pycache in testing
+/modules/__pycache__
+/__pycache__

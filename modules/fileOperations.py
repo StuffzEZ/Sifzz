@@ -14,9 +14,19 @@ This module adds file operations to Sifzz:
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from sifzz import SifzzModule
+# Add the parent directory to sys.path so we can import sifzz
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+# Now import SifzzModule
+try:
+    from sifzz import SifzzModule
+except ImportError as e:
+    print(f"[ERROR] Could not import SifzzModule: {e}")
+    print(f"[ERROR] sys.path: {sys.path}")
+    raise
 import re
 
 class FileOperationsModule(SifzzModule):
