@@ -234,23 +234,33 @@ class SifzzInterpreter:
         depth = 1
         i = start + 1
         
-        block_starters = ['if ', 'repeat ', 'loop ', 'for each ', 'function ', 'else if ', 'else:']
-        block_enders = ['end if', 'end repeat', 'end loop', 'end for', 'end function']
+        block_starters = ['if ', 'repeat ', 'loop ', 'for each ', 'function ']
+        block_enders = {
+            'if ': 'end if',
+            'repeat ': 'end repeat',
+            'loop ': 'end loop',
+            'for each ': 'end for',
+            'function ': 'end function'
+        }
         
         while i < len(lines):
             line = lines[i].strip()
             
-            if any(line.startswith(starter) for starter in block_starters):
-                depth += 1
+            # Check for block starters
+            for starter in block_starters:
+                if line.startswith(starter):
+                    depth += 1
+                    break
             
-            if any(line == ender for ender in block_enders):
+            # Check for block enders
+            if line in block_enders.values():
                 depth -= 1
-                if depth == 0:
+                if depth == 0 and line == end_marker:
                     return i
             
-            if line.startswith('else if ') or line == 'else:':
-                if depth == 1:
-                    return i - 1
+            # Handle else/else if
+            if (line.startswith('else if ') or line == 'else:') and depth == 1:
+                return i - 1
             
             i += 1
         
@@ -265,68 +275,36 @@ class SifzzInterpreter:
             return start + 1
         
         condition = match.group(1)
-        block_start = start + 1
         block_end = self.find_block_end(lines, start, 'end if')
         
-        i = block_start
-        current_start = block_start
-        executed = False
-        
         if self.eval_condition(condition):
-            clause_end = block_end
-            for j in range(block_start, block_end + 1):
-                if lines[j].strip().startswith('else if ') or lines[j].strip() == 'else:':
-                    clause_end = j - 1
+            # Execute if block until else/else if
+            next_block = block_end
+            for i in range(start + 1, block_end):
+                if lines[i].strip().startswith('else'):
+                    next_block = i
                     break
-            self.execute_block(lines, block_start, clause_end + 1)
-            executed = True
-        
-        if not executed:
-            i = block_start
-            while i <= block_end:
+            self.execute_block(lines, start + 1, next_block)
+            return block_end + 1
+        else:
+            # Look for matching else if/else
+            i = start + 1
+            while i < block_end:
                 line = lines[i].strip()
-                
                 if line.startswith('else if '):
                     match = re.match(r'else if (.+):', line)
                     if match and self.eval_condition(match.group(1)):
-                        clause_start = i + 1
-                        clause_end = block_end
-                        for j in range(i + 1, block_end + 1):
-                            check_line = lines[j].strip()
-                            if check_line.startswith('else if ') or check_line == 'else:':
-                                clause_end = j - 1
+                        next_block = block_end
+                        for j in range(i + 1, block_end):
+                            if lines[j].strip().startswith('else'):
+                                next_block = j
                                 break
-                        self.execute_block(lines, clause_start, clause_end + 1)
-                        executed = True
-                        break
-                
+                        self.execute_block(lines, i + 1, next_block)
+                        return block_end + 1
                 elif line == 'else:':
                     self.execute_block(lines, i + 1, block_end)
-                    break
-                
+                    return block_end + 1
                 i += 1
-        
-        return block_end + 1
-    
-    def handle_repeat(self, lines, start):
-        """Handle repeat X times loops"""
-        line = lines[start].strip()
-        match = re.match(r'repeat (\d+) times?:', line)
-        
-        if not match:
-            return start + 1
-        
-        times = int(match.group(1))
-        block_start = start + 1
-        block_end = self.find_block_end(lines, start, 'end repeat')
-        
-        for _ in range(times):
-            self.loop_break = False
-            self.loop_continue = False
-            self.execute_block(lines, block_start, block_end)
-            if self.loop_break:
-                self.loop_break = False
-                break
         
         return block_end + 1
     
@@ -388,6 +366,15 @@ class SifzzInterpreter:
     
     def execute_line(self, line):
         """Execute a single line of code - returns True if handled"""
+        
+        # Add stop command
+        if line == 'stop script':
+            sys.exit(0)
+            return True
+
+        if line in ['end if', 'end loop', 'end repeat', 'end for', 'end function'] or \
+        line == 'else:' or line.startswith('else if '):
+            return True
         
         # Set variable
         if line.startswith('set ') and ' to ' in line:
@@ -593,6 +580,13 @@ class SifzzInterpreter:
     def eval_expression(self, expr):
         """Evaluate an expression"""
         expr = expr.strip()
+        
+        # Random number between expression
+        match = re.match(r'random number between (\d+) and (\d+)', expr)
+        if match:
+            min_val = int(match.group(1))
+            max_val = int(match.group(2))
+            return random.randint(min_val, max_val)
         
         # String literal
         if expr.startswith('"') and expr.endswith('"'):

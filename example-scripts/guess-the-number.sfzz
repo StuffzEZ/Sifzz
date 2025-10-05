@@ -1,0 +1,30 @@
+# Number Guessing Game
+say "=== Number Guessing Game ==="
+say ""
+
+set target to random number between 1 and 10
+set guesses to 0
+set won to false
+
+loop while guesses less than 3:
+    ask for number "Guess a number (1-10):" and store in guess
+    increase guesses
+    
+    say target
+
+    if guess is target:
+        say "Correct! You won!"
+        set won to true
+        break
+        stop script
+    else if guess greater than target:
+        say "Too high!"
+    else:
+        say "Too low!"
+    end if
+end loop
+
+if won is false:
+    say "Game Over! The number was:"
+    say target
+end if
