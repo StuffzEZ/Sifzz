@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """
-Sifzz (.sfzz) Interpreter v3.2
-A simple, beginner-friendly scripting language with modular architecture
-Fixed module command execution with proper class detection
+Sifzz (.sfzz) Interpreter
 """
+
+#############################################
+### © StuffzEZ/OptionallyBlueStudios 2025 ###
+###      Licensed Under GNU GPLv3         ###
+#############################################
+
+###############
+### Imports ###
+###############
 
 import re
 import sys
@@ -12,6 +19,13 @@ import time
 import math
 import importlib.util
 from pathlib import Path
+import subprocess
+import threading
+import tkinter as tk
+
+########################
+### Debug Mode Logic ###
+########################
 
 # Debug mode toggle - can be overridden by command-line argument
 DEBUG_MODE = False
@@ -20,6 +34,42 @@ def set_debug_mode(enabled):
     """Set debug mode globally"""
     global DEBUG_MODE
     DEBUG_MODE = enabled
+
+class PackageAPI:
+    @staticmethod
+    def install_package(package):
+        def do_install():
+            print("[WARNING] Missing Dependencies." + f" Installing {package}... Please wait.")
+            try:
+                # Suppress pip output unless DEBUG_MODE is True
+                if DEBUG_MODE:
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                else:
+                    subprocess.check_call(
+                        [sys.executable, "-m", "pip", "install", package],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+            except Exception as e:
+                print(f"Failed to install {package}:\n{e}")
+                time.sleep(3)
+            else:
+                print(f"Successfully installed {package}!")
+                time.sleep(1.5)
+        t = threading.Thread(target=do_install)
+        t.start()
+        t.join()
+
+    @staticmethod
+    def getDependency(package):
+        try:
+            __import__(package)
+        except ImportError:
+            PackageAPI.install_package(package)
+
+#####################
+### Addon Modules ###
+#####################
 
 class SifzzModule:
     """Base class for Sifzz modules"""
@@ -39,6 +89,10 @@ class SifzzModule:
             'handler': handler,
             'description': description
         }
+
+###################
+### Interpreter ###
+###################
 
 class SifzzInterpreter:
     def __init__(self):
@@ -156,7 +210,7 @@ class SifzzInterpreter:
         """Execute a block of code"""
         i = start
         while i < end:
-            if self.loop_break or self.loop_continue:
+            if self.loop_break:
                 break
                 
             line = lines[i].strip()
@@ -166,13 +220,18 @@ class SifzzInterpreter:
                 i += 1
                 continue
             
-            # Handle function definitions
-            if line.startswith('function '):
-                func_name = line.split()[1].rstrip(':')
-                func_start = i + 1
-                func_end = self.find_block_end(lines, i, 'end function')
-                self.functions[func_name] = (func_start, func_end)
-                i = func_end + 1
+            # Stop script command
+            if line == 'stop script':
+                sys.exit(0)
+            
+            # Break command
+            if line == 'break':
+                self.loop_break = True
+                break
+            
+            # Handle loops
+            if line.startswith('loop while '):
+                i = self.handle_loop(lines, i)
                 continue
             
             # Handle if statements
@@ -180,29 +239,7 @@ class SifzzInterpreter:
                 i = self.handle_if(lines, i)
                 continue
             
-            # Handle loops
-            if line.startswith('repeat '):
-                i = self.handle_repeat(lines, i)
-                continue
-            
-            if line.startswith('loop '):
-                i = self.handle_loop(lines, i)
-                continue
-            
-            if line.startswith('for each '):
-                i = self.handle_foreach(lines, i)
-                continue
-            
-            # Break and continue
-            if line == 'break':
-                self.loop_break = True
-                return i
-            
-            if line == 'continue':
-                self.loop_continue = True
-                return i
-            
-            # Try to execute line - first core commands, then modules
+            # Try to execute line
             if not self.execute_line(line):
                 if not self.try_module_commands(line):
                     print(f"[WARNING] Unknown command: {line}")
@@ -321,12 +358,22 @@ class SifzzInterpreter:
         block_end = self.find_block_end(lines, start, 'end loop')
         
         while self.eval_condition(condition):
-            self.loop_break = False
-            self.loop_continue = False
+            # Execute the block
             self.execute_block(lines, block_start, block_end)
+            
+            # Check for break or stop script
             if self.loop_break:
                 self.loop_break = False
-                break
+                return block_end + 1
+            
+            # Re-evaluate variables for next iteration
+            try:
+                if 'guesses' in self.variables:
+                    if DEBUG_MODE:
+                        print(f"[DEBUG] Current guesses: {self.variables['guesses']}")
+            except Exception as e:
+                if DEBUG_MODE:
+                    print(f"[DEBUG] Error checking variables: {e}")
         
         return block_end + 1
     
@@ -366,10 +413,17 @@ class SifzzInterpreter:
     
     def execute_line(self, line):
         """Execute a single line of code - returns True if handled"""
-        
-        # Add stop command
+        if DEBUG_MODE:
+            print(f"[DEBUG] Executing line: {line}")
+            
+        # First check for stop script
         if line == 'stop script':
             sys.exit(0)
+            return True
+            
+        # Handle break command
+        if line == 'break':
+            self.loop_break = True
             return True
 
         if line in ['end if', 'end loop', 'end repeat', 'end for', 'end function'] or \
@@ -586,7 +640,10 @@ class SifzzInterpreter:
         if match:
             min_val = int(match.group(1))
             max_val = int(match.group(2))
-            return random.randint(min_val, max_val)
+            output_rannumexp = random.randint(min_val, max_val)
+            if DEBUG_MODE:
+                print('[DEBUG] Random Number Is: ' + str(output_rannumexp))
+            return output_rannumexp
         
         # String literal
         if expr.startswith('"') and expr.endswith('"'):
@@ -681,6 +738,9 @@ class SifzzInterpreter:
             else:
                 condition = condition.replace(var_name, str(var_value))
         
+        if DEBUG_MODE:
+            print(condition)
+
         try:
             return eval(condition)
         except:

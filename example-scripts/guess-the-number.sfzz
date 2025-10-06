@@ -1,30 +1,42 @@
 # Number Guessing Game
+# Requires PlaySound Module
+# Load Music
+play url "https://dl.dropbox.com/scl/fi/8wlh5wa4h3tflbdikfneh/audio_283c8c6c40.mp3?rlkey=mdyowm2boi81arytsdj4kytxk&st=6nz2hqxw&dl=0"
 say "=== Number Guessing Game ==="
 say ""
+say "Do you think YOU can win?"
+say ""
+say "Hint: Type 100 to give up."
+say "You have 2 seconds to prepare..."
+wait 2 second
 
 set target to random number between 1 and 10
 set guesses to 0
 set won to false
 
-loop while guesses less than 3:
+loop while guesses less than 3: # why doesn't this work
     ask for number "Guess a number (1-10):" and store in guess
     increase guesses
-    
-    say target
 
     if guess is target:
+        play url "https://www.myinstants.com/media/sounds/victory_fanfare.mp3"
         say "Correct! You won!"
         set won to true
         break
         stop script
+    else if guess is 100:
+        play url "https://www.myinstants.com/media/sounds/sound-fail-fallo.mp3"
+        say "Game Over! The number was:"
+        say target
+        set guesses to 999
+        wait 4 seconds
+        stop sound
+        play url "https://www.myinstants.com/media/sounds/titanic-flute-fail.mp3" # seriously? the fail sound, i get but this?
+        wait 15 seconds
+        stop sound
     else if guess greater than target:
-        say "Too high!"
+        say "Too high!" # why do you always do that 
     else:
         say "Too low!"
     end if
 end loop
-
-if won is false:
-    say "Game Over! The number was:"
-    say target
-end if
