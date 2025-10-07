@@ -46,10 +46,7 @@ body:
         import sys
         import os
         
-        # Add the parent directory to sys.path so we can import sifzz
-        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        if parent_d......
-        import re
+        parent_dir = os.path.dirname(os.path.dirn...
       render: python
     validations:
       required: true
