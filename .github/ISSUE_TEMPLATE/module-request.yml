@@ -22,8 +22,8 @@ body:
     id: module-filename
     attributes:
       label: Module Filename
-      description: The filename of your Python module. Preferably in camelCase.
-      placeholder: e.g., myModule.py
+      description: The filename of your Python module
+      placeholder: e.g., data_processor.py
     validations:
       required: true
 
@@ -43,10 +43,8 @@ body:
       description: Paste your complete Python module code here
       placeholder: |
         # Your Python code here
-        import sys
-        import os
-        
-        parent_dir = os.path.dirname(os.path.dirn...
+        def main():
+            pass
       render: python
     validations:
       required: true
@@ -65,6 +63,15 @@ body:
           required: true
         - label: I have reviewed my code with the Module Development Guide (MDG)
           required: true
+
+  - type: checkboxes
+    id: reupload-edited
+    attributes:
+      label: Re-upload Information
+      description: Check this box only if applicable
+      options:
+        - label: This is a re-upload but the code has been edited/improved
+          required: false
 
   - type: textarea
     id: additional-info
