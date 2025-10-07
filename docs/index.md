@@ -9,20 +9,21 @@ A beginner-friendly scripting language with natural syntax
 ## Table of Contents
 
 1. [Getting Started](#getting-started)
-2. [Basic Syntax](#basic-syntax)
-3. [Variables](#variables)
-4. [Output](#output)
-5. [Input](#input)
-6. [Arithmetic Operations](#arithmetic-operations)
-7. [Conditional Statements](#conditional-statements)
-8. [Loops](#loops)
-9. [Lists](#lists)
-10. [Functions](#functions)
-11. [String Operations](#string-operations)
-12. [Math Operations](#math-operations)
-13. [Random Numbers](#random-numbers)
-14. [Control Flow](#control-flow)
-15. [Complete Examples](#complete-examples)
+2. [Sifzz CLI](#cli)
+3. [Basic Syntax](#basic-syntax)
+4. [Variables](#variables)
+5. [Output](#output)
+6. [Input](#input)
+7. [Arithmetic Operations](#arithmetic-operations)
+8. [Conditional Statements](#conditional-statements)
+9. [Loops](#loops)
+10. [Lists](#lists)
+11. [Functions](#functions)
+12. [String Operations](#string-operations)
+13. [Math Operations](#math-operations)
+14. [Random Numbers](#random-numbers)
+15. [Control Flow](#control-flow)
+16. [Complete Examples](#complete-examples)
 
 [NEXT PAGE - Modules](modules/mdg)
 
@@ -57,6 +58,10 @@ python sifzz.py hello.sfzz
 ```
 
 ---
+
+## CLI
+`python sifzz.py FILE.sfzz -d` <-- -d does debug. This opens a file
+`python sifzz.py -i MODULE_NAME` <-- install a module from our repo using SIFZZPM (Sifzz Package Manager)
 
 ## Basic Syntax
 
