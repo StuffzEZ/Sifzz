@@ -1,0 +1,85 @@
+name: Submit Python Module
+description: Submit a new Python code module to Sifzz
+title: "[MODULE] "
+labels: ["Module Request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Module Submission
+        Thank you for submitting a module to Sifzz! Please fill out all required fields below.
+
+  - type: input
+    id: module-name
+    attributes:
+      label: Module Name
+      description: The name of your module
+      placeholder: e.g., My Module
+    validations:
+      required: true
+
+  - type: input
+    id: module-filename
+    attributes:
+      label: Module Filename
+      description: The filename of your Python module (camelCase)
+      placeholder: e.g., myModule.py
+    validations:
+      required: true
+
+  - type: textarea
+    id: module-description
+    attributes:
+      label: Module Description
+      description: Describe what your module does and its main features
+      placeholder: Provide a clear and concise description of your module's functionality
+    validations:
+      required: true
+
+  - type: textarea
+    id: module-code
+    attributes:
+      label: Module Code
+      description: Paste your complete Python module code here
+      placeholder: |
+        # Your Python code here
+        import sys
+        import os
+
+        parent_dir = os.path.dirname(os.path.dirn...
+      render: python
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: submission-checklist
+    attributes:
+      label: Submission Checklist
+      description: You must agree to all of the following before submitting
+      options:
+        - label: I agree that my module is suitable for publishing and has been tested
+          required: true
+        - label: I agree that my module is safe and has no malware/viruses
+          required: true
+        - label: This is not a re-upload (without editing; if edited, check the box in Re-Upload information)
+          required: true
+        - label: I have reviewed my code with the Module Development Guide (MDG)
+          required: true
+
+  - type: checkboxes
+    id: reupload-edited
+    attributes:
+      label: Re-upload Information
+      description: Check this box only if applicable
+      options:
+        - label: This is a re-upload but the code has been edited/improved
+          required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Additional Information
+      description: Any other information you'd like to provide (dependencies, usage examples, etc.)
+      placeholder: Optional additional context
+    validations:
+      required: false
