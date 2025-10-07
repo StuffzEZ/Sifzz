@@ -22,8 +22,8 @@ body:
     id: module-filename
     attributes:
       label: Module Filename
-      description: The filename of your Python module
-      placeholder: e.g., data_processor.py
+      description: The filename of your Python module. Preferably in camelCase.
+      placeholder: e.g., myModule.py
     validations:
       required: true
 
@@ -43,8 +43,13 @@ body:
       description: Paste your complete Python module code here
       placeholder: |
         # Your Python code here
-        def main():
-            pass
+        import sys
+        import os
+        
+        # Add the parent directory to sys.path so we can import sifzz
+        parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        if parent_d......
+        import re
       render: python
     validations:
       required: true
