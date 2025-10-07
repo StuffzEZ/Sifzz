@@ -43,8 +43,10 @@ body:
       description: Paste your complete Python module code here
       placeholder: |
         # Your Python code here
-        def main():
-            pass
+        import sys
+        import os
+
+        parent_dir = os.path.dirname(os.path.dirn...
       render: python
     validations:
       required: true
