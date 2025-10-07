@@ -16,6 +16,8 @@ Extending Sifzz with Python Modules
 8. [Best Practices](#best-practices)
 9. [Built-in Modules](#built-in-modules)
 10. [Contributing](#contributing)
+11. [PackageAPI](#packageapi)
+12. [Debug Mode](#debug-mode)
 
 ---
 
@@ -714,7 +716,7 @@ def register_commands(self):
 ## FAQ
 
 **Q: Can modules modify the core interpreter?**  
-A: Yes, through `self.interpreter`, but be careful!
+A: Yes, through `self.interpreter`, but be careful. It will make code reviews take longer!
 
 **Q: Can modules depend on other modules?**  
 A: Not directly, but they can share data through variables.
@@ -727,6 +729,36 @@ A: Yes! Share your .py file and documentation.
 
 **Q: What if my regex pattern conflicts with core commands?**  
 A: Core commands are checked first. Use specific patterns.
+
+
+## PackageAPI
+
+Added in v0.3, PackageAPI is a way for you to use pip packages easily and have them be automatically installed with the module. To do this, just add this to your `from sifzz import SifzzModule` like so:
+```
+from sifzz import SifzzModule, PackageAPI
+```
+Then you can automatically install the package with
+```
+PackageAPI.getDependency('PACKAGE_NAME')
+```
+Then import it after
+```
+import PACKAGE_NAME
+```
+And you have sucessfully used PackageAPI
+
+## Debug Mode
+
+For debugging, we require you to use the `DEBUG_MODE` global. You can do this by adding it to your `from sifzz import SifzzModule` line like so:
+```
+from sifzz import SifzzModule, DEBUG_MODE
+```
+Now do:
+```
+if DEBUG_MODE:
+    print('[DEBUG] Debug message') # The [DEBUG] tag is required
+```
+To enable debug mode when running, run with -d (or use the launcher).
 
 ---
 

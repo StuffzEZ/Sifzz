@@ -35,6 +35,10 @@ def set_debug_mode(enabled):
     global DEBUG_MODE
     DEBUG_MODE = enabled
 
+##################
+### PackageAPI ###
+##################
+
 class PackageAPI:
     @staticmethod
     def install_package(package):
