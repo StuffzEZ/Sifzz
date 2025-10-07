@@ -19,6 +19,8 @@ Extending Sifzz with Python Modules
 11. [PackageAPI](#packageapi)
 12. [Debug Mode](#debug-mode)
 
+[NEXT PAGE - SUBMITTING A MODULE]
+
 ---
 
 ## Introduction

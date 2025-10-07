@@ -754,6 +754,9 @@ def main():
     """Main entry point"""
     # Parse command-line arguments
     import argparse
+    import urllib.request
+    from pathlib import Path
+    import urllib.error
     
     parser = argparse.ArgumentParser(
         description='Sifzz Interpreter v3.2 - A beginner-friendly scripting language',
@@ -763,37 +766,43 @@ Examples:
   python sifzz.py program.sfzz
   python sifzz.py program.sfzz --debug
   python sifzz.py program.sfzz -d
+  python sifzz.py -i module_name
         """
     )
     
     parser.add_argument('filename', nargs='?', help='Sifzz script file (.sfzz)')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
+    parser.add_argument('-i', '--install-module', help='Install module from stuffzez/sifzz repository')
     
     args = parser.parse_args()
     
-    # Enable debug mode if flag is set
-    if args.debug:
-        set_debug_mode(True)
-    
-    # Show usage if no filename provided
-    if not args.filename:
-        print("=" * 50)
-        print("Sifzz Interpreter v3.2 (Fixed Modules)")
-        print("=" * 50)
-        print("\nUsage: python sifzz.py <filename.sfzz> [--debug]")
-        print("\nOptions:")
-        print("  -d, --debug    Enable debug output")
-        print("\nFeatures:")
-        print("  - Natural, beginner-friendly syntax")
-        print("  - Modular architecture for extensions")
-        print("  - Place Python modules in modules/ directory")
-        print("\nExample:")
-        print('  say "Hello, World!"')
-        print("=" * 50)
-        sys.exit(1)
-    
-    interpreter = SifzzInterpreter()
-    interpreter.run_file(args.filename)
+    # Handle module installation
+    if args.install_module:
+        try:
+            # Create modules directory if it doesn't exist
+            Path("modules").mkdir(exist_ok=True)
+            
+            # Construct GitHub raw URL for the module
+            module_name = f"{args.install_module}.py"
+            url = f"https://raw.githubusercontent.com/stuffzez/sifzz/main/modules/{module_name}"
+            target_path = Path("modules") / module_name
+            
+            print(f"[SIFZZPM] Adding '{module_name}' to your project..")
+            try:
+                urllib.request.urlretrieve(url, target_path)
+                print(f"[SIFZZPM] Successfully added '{module_name}' to your project!")
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    print("Error: Module not found")
+                elif e.code == 403:
+                    print("Error: Command usage not allowed (HTTP 403)")
+                else:
+                    print(f"Error: HTTP {e.code}")
+                sys.exit(1)
+            sys.exit(0)
+        except Exception as e:
+            print(f"Error installing module: {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()
