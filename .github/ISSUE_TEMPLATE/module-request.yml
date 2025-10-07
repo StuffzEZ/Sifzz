@@ -13,8 +13,8 @@ body:
     id: module-name
     attributes:
       label: Module Name
-      description: The name of your module (as it will appear in Sifzz)
-      placeholder: e.g., data_processor
+      description: The name of your module
+      placeholder: e.g., My Module
     validations:
       required: true
 
@@ -22,8 +22,8 @@ body:
     id: module-filename
     attributes:
       label: Module Filename
-      description: The filename of your Python module
-      placeholder: e.g., data_processor.py
+      description: The filename of your Python module (camelCase)
+      placeholder: e.g., myModule.py
     validations:
       required: true
 
