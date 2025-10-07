@@ -61,7 +61,7 @@ body:
           required: true
         - label: I agree that my module is safe and has no malware/viruses
           required: true
-        - label: This is not a re-upload
+        - label: This is not a re-upload (without editing; if edited, check the box in Re-Upload information)
           required: true
         - label: I have reviewed my code with the Module Development Guide (MDG)
           required: true
