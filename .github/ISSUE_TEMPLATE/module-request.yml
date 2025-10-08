@@ -30,8 +30,8 @@ body:
   - type: textarea
     id: module-description
     attributes:
-      label: Module Description
-      description: Describe what your module does and its main features
+      label: Module Description (Documentation)
+      description: Describe what your module does and its main features. This will be used as the documentation for the module.
       placeholder: Provide a clear and concise description of your module's functionality
     validations:
       required: true
@@ -73,6 +73,14 @@ body:
       description: Check this box only if applicable
       options:
         - label: This is a re-upload but the code has been edited/improved
+          required: false
+  - type: checkboxes
+    id: documentation-options
+    attributes:
+      label: Documentation Options
+      description: Options about the documnetation
+      options:
+        - label: Do not give me a documentation for my module (CAREFUL: This will make your module not be on our website, making it harder for people to know about it!)
           required: false
 
   - type: textarea
