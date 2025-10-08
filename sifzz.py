@@ -757,7 +757,7 @@ def main():
     import urllib.request
     from pathlib import Path
     import urllib.error
-    
+
     parser = argparse.ArgumentParser(
         description='Sifzz Interpreter v3.2 - A beginner-friendly scripting language',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -767,26 +767,55 @@ Examples:
   python sifzz.py program.sfzz --debug
   python sifzz.py program.sfzz -d
   python sifzz.py -i module_name
+  python sifzz.py --init
         """
     )
-    
+
     parser.add_argument('filename', nargs='?', help='Sifzz script file (.sfzz)')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
     parser.add_argument('-i', '--install-module', help='Install module from SifzzLang/sifzz repository')
-    
+    parser.add_argument('-c', '--create', '--init', dest='init', action='store_true', help='Initialize a new Sifzz project')
+
     args = parser.parse_args()
-    
+
+    # Handle project initialization
+    if args.init:
+        # Prompt for project name and author
+        project_name = input("Enter project name: ").strip()
+        author = input("Enter author name: ").strip()
+        # Download sifzz.md template
+        md_url = "https://raw.githubusercontent.com/SifzzLang/sifzz/main/project-sifzz-file.md"
+        try:
+            print("[SIFZZ] Creating new project...")
+            # Download template
+            with urllib.request.urlopen(md_url) as response:
+                md_content = response.read().decode('utf-8')
+            # Replace placeholders
+            md_content = md_content.replace("{{project.name}}", project_name)
+            md_content = md_content.replace("{{project.author}}", author)
+            # Write sifzz.md
+            with open("sifzz.md", "w", encoding="utf-8") as f:
+                f.write(md_content)
+            # Create main.sfzz
+            with open("main.sfzz", "w", encoding="utf-8") as f:
+                f.write(f'# {project_name} main.sfzz\n')
+            print("[SIFZZ] Project initialized: sifzz.md and main.sfzz created.")
+        except Exception as e:
+            print(f"Error initializing project: {e}")
+            sys.exit(1)
+        sys.exit(0)
+
     # Handle module installation
     if args.install_module:
         try:
             # Create modules directory if it doesn't exist
             Path("modules").mkdir(exist_ok=True)
-            
+
             # Construct GitHub raw URL for the module
             module_name = f"{args.install_module}.py"
             url = f"https://raw.githubusercontent.com/SifzzLang/sifzz/main/modules/{module_name}"
             target_path = Path("modules") / module_name
-            
+
             print(f"[SIFZZPM] Adding '{module_name}' to your project..")
             try:
                 urllib.request.urlretrieve(url, target_path)
