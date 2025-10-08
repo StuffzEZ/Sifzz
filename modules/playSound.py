@@ -146,15 +146,18 @@ class SoundModule(SifzzModule):
         """Play audio from URL"""
         url = match.group(1)
         try:
-            # Download to temporary file
-            temp_file = tempfile.mktemp(suffix=os.path.splitext(urlparse(url).path)[1])
-            if DEBUG_MODE:
-                print(f"[INFO] Downloading {url}...")
-            urlretrieve(url, temp_file)
-            self.temp_files.append(temp_file)
-            
-            # Play the downloaded file
-            self.play_sound_file(type('Match', (), {'group': lambda x: temp_file}))
+            # Create secure temporary file
+            suffix = os.path.splitext(urlparse(url).path)[1]
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_file:
+                if DEBUG_MODE:
+                    print(f"[INFO] Downloading {url}...")
+                response = requests.get(url)
+                temp_file.write(response.content)
+                temp_file.flush()
+                self.temp_files.append(temp_file.name)
+                
+                # Play the downloaded file
+                self.play_sound_file(type('Match', (), {'group': lambda x: temp_file.name}))
         except Exception as e:
             print(f"[ERROR] Failed to play URL: {e}")
     
