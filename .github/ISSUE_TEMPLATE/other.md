@@ -1,5 +1,5 @@
 ---
-name: Other
+name: 9. Other
 about: My problem does not fall into any of the categories above.
 title: ''
 labels: ''
