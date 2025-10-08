@@ -3,10 +3,10 @@
 Sifzz (.sfzz) Interpreter
 """
 
-#############################################
-### © StuffzEZ/OptionallyBlueStudios 2025 ###
-###      Licensed Under GNU GPLv3         ###
-#############################################
+##############################################
+### © SifzzLang/OptionallyBlueStudios 2025 ###
+###       Licensed Under GNU GPLv3         ###
+##############################################
 
 ###############
 ### Imports ###
@@ -772,7 +772,7 @@ Examples:
     
     parser.add_argument('filename', nargs='?', help='Sifzz script file (.sfzz)')
     parser.add_argument('-d', '--debug', action='store_true', help='Enable debug mode')
-    parser.add_argument('-i', '--install-module', help='Install module from stuffzez/sifzz repository')
+    parser.add_argument('-i', '--install-module', help='Install module from SifzzLang/sifzz repository')
     
     args = parser.parse_args()
     
@@ -784,7 +784,7 @@ Examples:
             
             # Construct GitHub raw URL for the module
             module_name = f"{args.install_module}.py"
-            url = f"https://raw.githubusercontent.com/stuffzez/sifzz/main/modules/{module_name}"
+            url = f"https://raw.githubusercontent.com/SifzzLang/sifzz/main/modules/{module_name}"
             target_path = Path("modules") / module_name
             
             print(f"[SIFZZPM] Adding '{module_name}' to your project..")

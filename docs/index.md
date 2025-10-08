@@ -60,8 +60,25 @@ python sifzz.py hello.sfzz
 ---
 
 ## CLI
-`python sifzz.py FILE.sfzz -d` <-- -d does debug. This opens a file
-`python sifzz.py -i MODULE_NAME` <-- install a module from our repo using SIFZZPM (Sifzz Package Manager)
+Sifzz has recently introduced a new CLI system. Along with this, we have added SIFZZPM; Sifzz Package Manager. It lets you install modules to your project (currently only install) Heres how it works:
+
+### Running a program
+```
+python sifzz.py FILE_NAME.sfzz
+```
+Please replace FILE_NAME with the name of your Sifzz script (it can be in the format FOLDER/FILE.sfzz aswell).
+
+### Running a program (with debug)
+```
+python sifzz.py FILE_NAME.sfzz -d
+```
+Please replace FILE_NAME with the name of your Sifzz script (it can be in the format FOLDER/FILE.sfzz aswell). You can also do `--debug` instead of `-d`.
+
+### Installing a package/module to your project
+```
+python sifzz.py -i PACKAGE_OR_MODULE_NAME
+```
+Please replace `PACKAGE_OR_MODULE_NAME` with your Package/Module's name that you would like to install. Please note: It MUST be in the Sifzz module repository.
 
 ## Basic Syntax
 
