@@ -80,7 +80,7 @@ body:
       label: Documentation Options
       description: Options about the documnetation
       options:
-        - label: Do not give me a documentation for my module (CAREFUL: This will make your module not be on our website, making it harder for people to know about it!)
+        - label: Do not give me a documentation for my module (CAREFUL- This will make your module not be on our website, making it harder for people to know about it!)
           required: false
 
   - type: textarea
