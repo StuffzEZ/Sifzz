@@ -3,10 +3,10 @@
 Sifzz (.sfzz) Interpreter
 """
 
-##############################################
-### © SifzzLang/OptionallyBlueStudios 2025 ###
-###       Licensed Under GNU GPLv3         ###
-##############################################
+######################################
+###   © SifzzLang/StuffzEZ 2025    ###
+###   Licensed Under GNU GPLv3     ###
+######################################
 
 ###############
 ### Imports ###

@@ -226,6 +226,6 @@ play url "https://example.com/audio.mp3"
 **Module Information**
 
 - Version: 1.0
-- Author: StuffzEZ/OptionallyBlueStudios
+- Author: StuffzEZ
 - License: GNU GPLv3
 - Dependencies: pygame, numpy, requests
