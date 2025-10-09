@@ -80,6 +80,13 @@ python sifzz.py -i PACKAGE_OR_MODULE_NAME
 ```
 Please replace `PACKAGE_OR_MODULE_NAME` with your Package/Module's name that you would like to install. Please note: It MUST be in the Sifzz module repository.
 
+### Creating a project
+Run
+```
+python sifzz.py -c
+```
+And answer the question
+
 ## Basic Syntax
 
 ### Comments
