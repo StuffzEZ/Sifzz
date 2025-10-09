@@ -778,6 +778,10 @@ Examples:
 
     args = parser.parse_args()
 
+    # Set debug mode if requested
+    if args.debug:
+        set_debug_mode(True)
+
     # Handle project initialization
     if args.init:
         # Prompt for project name and author
@@ -835,3 +839,12 @@ Examples:
 
 if __name__ == "__main__":
     main()
+
+    # If a filename is provided, run the interpreter
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('filename', nargs='?', help='Sifzz script file (.sfzz)')
+    args, unknown = parser.parse_known_args()
+    if args.filename:
+        interpreter = SifzzInterpreter()
+        interpreter.run_file(args.filename)
